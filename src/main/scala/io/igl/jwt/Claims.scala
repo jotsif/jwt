@@ -34,6 +34,18 @@ object Sub extends ClaimField {
   override val name = "sub"
 }
 
+/** Scope claim */
+case class Scope(value: String) extends ClaimValue {
+  override val jsValue = JsString(value)
+  override val field: ClaimField = Scope
+}
+
+object Scope extends ClaimField {
+  override def attemptApply(value: JsValue): Option[Scope] =
+    value.asOpt[String].map(apply)
+  override val name = "scope"
+}
+
 case class Aud(value: Either[String, Seq[String]]) extends ClaimValue {
   override val field: ClaimField = Aud
   override val jsValue: JsValue = value match {
