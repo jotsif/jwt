@@ -140,10 +140,12 @@ class JwtSpec extends UnitSpec {
   it should "give correct results when asked for various claims" in {
     val sub = Sub("foo")
     val iss = Iss("bar")
-    val jwt = new DecodedJwt(Nil, Seq(sub, iss))
+    val scope = Scope("myscope")
+    val jwt = new DecodedJwt(Nil, Seq(sub, iss, scope))
 
     jwt.getClaim[Sub] should be (Some(sub))
     jwt.getClaim[Iss] should be (Some(iss))
+    jwt.getClaim[Scope] should be (Some(scope))
     jwt.getClaim[Exp] should be (None)
   }
 
@@ -200,7 +202,8 @@ class JwtSpec extends UnitSpec {
     val nbf = Nbf(now - 100)
     val iat = Iat(1234567890L)
     val jti = Jti("asdf1234")
-    val claimsA = Seq[ClaimValue](iss, sub, audSingle, exp, nbf, iat, jti)
+    val scope = Scope("myscope")
+    val claimsA = Seq[ClaimValue](iss, sub, audSingle, exp, nbf, iat, jti, scope)
 
     val jwtA = new DecodedJwt(Seq(alg), claimsA)
     DecodedJwt.validateEncodedJwt(
@@ -209,7 +212,7 @@ class JwtSpec extends UnitSpec {
       alg.value,
       Set(),
       claimsA.map(_.field).toSet) should be (Success(jwtA))
-    val claimsB = Seq[ClaimValue](iss, sub, audMany, exp, nbf, iat, jti)
+    val claimsB = Seq[ClaimValue](iss, sub, audMany, exp, nbf, iat, jti, scope)
     val jwtB = new DecodedJwt(Seq(alg), claimsB)
     DecodedJwt.validateEncodedJwt(
       jwtB.encodedAndSigned(secret),
